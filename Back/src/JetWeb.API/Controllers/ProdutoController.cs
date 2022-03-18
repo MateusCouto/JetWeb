@@ -8,10 +8,10 @@ namespace JetWeb.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class EventoController : ControllerBase
+    public class ProdutoController : ControllerBase
     {
         private readonly DataContext _context;
-        public EventoController(DataContext context)
+        public ProdutoController(DataContext context)
         {
             _context = context;
         }

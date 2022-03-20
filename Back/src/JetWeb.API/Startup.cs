@@ -1,18 +1,19 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-using JetWeb.API.Data;
+using JetWeb.Application.Interfaces.Services;
+using JetWeb.Application.Services;
+using JetWeb.Domain.Interfaces.Repositories;
+using JetWeb.Persistence.Context;
+using JetWeb.Persistence.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 
 namespace JetWeb.API
@@ -28,8 +29,9 @@ namespace JetWeb.API
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<DataContext>(
-                context => context.UseSqlite(Configuration.GetConnectionString("Default")));
+            services.AddDbContext<JetWebContext>(
+                context => context.UseSqlite(Configuration.GetConnectionString("Default"))
+            );
 
             services.AddControllers()
                     .AddJsonOptions(options =>
@@ -38,6 +40,12 @@ namespace JetWeb.API
                     .AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling =
                         Newtonsoft.Json.ReferenceLoopHandling.Ignore
                     );
+
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+            services.AddScoped<IProdutoService, ProdutoService>();
+            services.AddScoped<IBaseRepository, BaseRepository>();
+            services.AddScoped<IProdutoRepository, ProdutoRepository>();
 
             services.AddCors();
             services.AddSwaggerGen(c =>
@@ -52,7 +60,11 @@ namespace JetWeb.API
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "JetWeb.API v1"));
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "JetWeb.API v1");
+                    c.DefaultModelsExpandDepth(-1);
+                });
             }
 
             app.UseHttpsRedirection();
@@ -64,6 +76,12 @@ namespace JetWeb.API
             app.UseCors(access => access.AllowAnyHeader()
                                         .AllowAnyMethod().
                                         AllowAnyOrigin());
+
+            // app.UseStaticFiles(new StaticFileOptions()
+            // {
+            //     FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "Resources")),
+            //     RequestPath = new PathString("/Resources")
+            // });
 
             app.UseEndpoints(endpoints =>
             {

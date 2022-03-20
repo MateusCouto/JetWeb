@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace JetWeb.API.Data.Migrations
+namespace JetWeb.Persistence.Migrations
 {
-    public partial class Initial002 : Migration
+    public partial class Reoganização001 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

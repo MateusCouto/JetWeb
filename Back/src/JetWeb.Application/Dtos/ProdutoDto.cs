@@ -12,7 +12,7 @@ namespace JetWeb.Application.Dtos
         [Display(Name = "Nome do Produto")]
         public string Nome { get; set; }
 
-        [RegularExpression(@".*\.(jpeg|png)$", ErrorMessage = "Não é uma imagem válida. (jpeg e png)")]
+        [RegularExpression(@".*\.(|jpg|png)$", ErrorMessage = "Extensões permitidas: '*.jpg' e '*.png'")]
         public string Imagem { get; set; }
 
         //[Required(ErrorMessage = "O campo {0} é obrigtório."),
@@ -20,7 +20,7 @@ namespace JetWeb.Application.Dtos
         [Display(Name = "Descrição do Produto")]
         public string Descricao { get; set; }
         public int Estoque { get; set; }
-        public bool Status { get; set; } = true;
+        public bool Status { get; set; }
 
         [Required(ErrorMessage = "O campo {0} é obrigtório.")]
         [Display(Name = "Preço")]

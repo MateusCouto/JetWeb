@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using JetWeb.API.Helpers;
 using JetWeb.Application.Dtos;
 using JetWeb.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Hosting;
@@ -17,12 +18,15 @@ namespace JetWeb.API.Controllers
     public class ProdutosController : ControllerBase
     {
         private readonly IProdutoService _produtoService;
+        private readonly IUtil _util;
+        private readonly string _destino = "Images";
         private readonly IWebHostEnvironment _hostEnvironment;
 
-        public ProdutosController(IProdutoService produtoService, IWebHostEnvironment hostEnvironment)
+        public ProdutosController(IProdutoService produtoService, IWebHostEnvironment hostEnvironment, IUtil util)
         {
             _hostEnvironment = hostEnvironment;
             _produtoService = produtoService;
+            _util = util;
         }
 
         [HttpGet]
@@ -85,11 +89,24 @@ namespace JetWeb.API.Controllers
                 if (produto == null) return NoContent();
 
                 var file = Request.Form.Files[0];
-                if (file.Length > 0)
+
+                var supportedTypes = new[] { "jpg", "png" };
+                var fileExt = System.IO.Path.GetExtension(file.FileName).Substring(1);
+                if (!supportedTypes.Contains(fileExt))
                 {
-                    DeleteImage(produto.Imagem);
-                    produto.Imagem = await SaveImage(file);
+                    return StatusCode(StatusCodes.Status415UnsupportedMediaType, "Extensões permitidas: '*.jpg' e '*.png'");
                 }
+
+                if (file.Length > 0 && file.Length <= 2097152)
+                {
+                    _util.DeleteImage(produto.Imagem, _destino);
+                    produto.Imagem = await _util.SaveImage(file, _destino);
+                }
+                else
+                {
+                    return StatusCode(StatusCodes.Status411LengthRequired, "Tamanho máximo: 2 mb.");
+                }
+
                 var ProdutoRetorno = await _produtoService.UpdateProduto(produtoId, produto);
 
                 return Ok(ProdutoRetorno);
@@ -97,7 +114,7 @@ namespace JetWeb.API.Controllers
             catch (Exception ex)
             {
                 return this.StatusCode(StatusCodes.Status500InternalServerError,
-                    $"Erro ao tentar adicionar produtos. Erro: {ex.Message}");
+                    $"Erro ao tentar realizar upload da imagem do produto. Erro: {ex.Message}");
             }
         }
 
@@ -145,8 +162,8 @@ namespace JetWeb.API.Controllers
 
                 if (await _produtoService.DeleteProduto(id))
                 {
-                    DeleteImage(produto.Imagem);
-                    return Ok(new { message = "Produto Deletado com sucesso!" });
+                    _util.DeleteImage(produto.Imagem, _destino);
+                    return Ok(new { message = "Produto Deletado com sucesso" });
                 }
                 else
                 {
@@ -194,34 +211,6 @@ namespace JetWeb.API.Controllers
                 return this.StatusCode(StatusCodes.Status500InternalServerError,
                     $"Erro ao tentar ativar o produto. Erro: {ex.Message}");
             }
-        }
-
-        [NonAction]
-        public async Task<string> SaveImage(IFormFile imageFile)
-        {
-            string imageName = new String(Path.GetFileNameWithoutExtension(imageFile.FileName)
-                                              .Take(10)
-                                              .ToArray()
-                                         ).Replace(' ', '-');
-
-            imageName = $"{imageName}{DateTime.UtcNow.ToString("yymmssfff")}{Path.GetExtension(imageFile.FileName)}";
-
-            var imagePath = Path.Combine(_hostEnvironment.ContentRootPath, @"Resources/images", imageName);
-
-            using (var fileStream = new FileStream(imagePath, FileMode.Create))
-            {
-                await imageFile.CopyToAsync(fileStream);
-            }
-
-            return imageName;
-        }
-
-        [NonAction]
-        public void DeleteImage(string imageName)
-        {
-            var imagePath = Path.Combine(_hostEnvironment.ContentRootPath, @"Resources/images", imageName);
-            if (System.IO.File.Exists(imagePath))
-                System.IO.File.Delete(imagePath);
         }
     }
 }

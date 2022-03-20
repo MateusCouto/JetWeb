@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Text.Json.Serialization;
+using JetWeb.API.Helpers;
 using JetWeb.Application.Interfaces.Services;
 using JetWeb.Application.Services;
 using JetWeb.Domain.Interfaces.Repositories;
@@ -46,6 +47,7 @@ namespace JetWeb.API
             services.AddScoped<IProdutoService, ProdutoService>();
             services.AddScoped<IBaseRepository, BaseRepository>();
             services.AddScoped<IProdutoRepository, ProdutoRepository>();
+            services.AddScoped<IUtil, Util>();
 
             services.AddCors();
             services.AddSwaggerGen(c =>
@@ -77,11 +79,11 @@ namespace JetWeb.API
                                         .AllowAnyMethod().
                                         AllowAnyOrigin());
 
-            // app.UseStaticFiles(new StaticFileOptions()
-            // {
-            //     FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "Resources")),
-            //     RequestPath = new PathString("/Resources")
-            // });
+            app.UseStaticFiles(new StaticFileOptions()
+            {
+                FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "Resources")),
+                RequestPath = new PathString("/Resources")
+            });
 
             app.UseEndpoints(endpoints =>
             {

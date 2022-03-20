@@ -56,7 +56,6 @@ namespace JetWeb.Application.Services
 
                 _baseRepository.Update<Produto>(produto);
 
-                //teste
                 if (await _baseRepository.SaveChangesAsync())
                 {
                     var produtoRetorno = await _produtoRepository.GetProdutoById(produto.Id);
@@ -138,14 +137,14 @@ namespace JetWeb.Application.Services
             }
         }
 
-        public async Task<bool> UpdateStatusProduto(int produtoId, bool status)
+        public async Task<bool> UpdateStatusProduto(int produtoId, ProdutoStatusDto model)
         {
             try
             {
                 var produto = await _produtoRepository.GetProdutoById(produtoId);
-                if (produto == null) throw new ArgumentException("Produto não encontrado");
+                if (produto == null) throw new Exception("O Produto para deletar não foi encontrado");
 
-                produto.Status = status;
+                produto.Status = model.Status;
 
                 _baseRepository.Update<Produto>(produto);
 

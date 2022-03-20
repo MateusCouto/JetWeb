@@ -14,7 +14,7 @@ using Microsoft.Extensions.Logging;
 namespace JetWeb.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/v1/[controller]")]
     public class ProdutosController : ControllerBase
     {
         private readonly IProdutoService _produtoService;
@@ -35,7 +35,7 @@ namespace JetWeb.API.Controllers
             try
             {
                 var produtos = await _produtoService.GetAllProdutos();
-                if (produtos == null) return NoContent();
+                if (produtos == null) return StatusCode(StatusCodes.Status404NotFound, "Nenhum produto foi encontrado"); ;
 
                 return Ok(produtos);
             }
@@ -52,7 +52,7 @@ namespace JetWeb.API.Controllers
             try
             {
                 var produto = await _produtoService.GetProdutoById(id);
-                if (produto == null) return NoContent();
+                if (produto == null) return StatusCode(StatusCodes.Status404NotFound, "Produto não encontrado");
 
                 return Ok(produto);
             }
@@ -80,25 +80,23 @@ namespace JetWeb.API.Controllers
             }
         }
 
-        [HttpPost("upload-image/{produtoId}")]
+        [HttpPost("{id}/imagem")]
         public async Task<IActionResult> UploadImage(int produtoId)
         {
             try
             {
                 var produto = await _produtoService.GetProdutoById(produtoId);
-                if (produto == null) return NoContent();
+                if (produto == null) return StatusCode(StatusCodes.Status404NotFound, "Produto não encontrado");
 
                 var file = Request.Form.Files[0];
 
-                var supportedTypes = new[] { "jpg", "png" };
-                var fileExt = System.IO.Path.GetExtension(file.FileName).Substring(1);
-                if (!supportedTypes.Contains(fileExt))
+                if (_util.CheckFileLimitImage(file))
                 {
-                    return StatusCode(StatusCodes.Status415UnsupportedMediaType, "Extensões permitidas: '*.jpg' e '*.png'");
-                }
+                    if (_util.CheckExtImage(file))
+                    {
+                        return StatusCode(StatusCodes.Status415UnsupportedMediaType, "Extensões permitidas: '*.jpg', '*.jpeg', e '*.png'");
+                    }
 
-                if (file.Length > 0 && file.Length <= 2097152)
-                {
                     _util.DeleteImage(produto.Imagem, _destino);
                     produto.Imagem = await _util.SaveImage(file, _destino);
                 }
@@ -124,14 +122,14 @@ namespace JetWeb.API.Controllers
             try
             {
                 var produto = await _produtoService.AddProdutos(model);
-                if (produto == null) return NoContent();
+                if (produto == null) return StatusCode(StatusCodes.Status500InternalServerError, "Erro ao tentar adicionar produto"); ;
 
                 return Ok(produto);
             }
             catch (Exception ex)
             {
                 return this.StatusCode(StatusCodes.Status500InternalServerError,
-                    $"Erro ao tentar adicionar produtos. Erro: {ex.Message}");
+                    $"Erro ao tentar adicionar produto. Erro: {ex.Message}");
             }
         }
 
@@ -141,7 +139,7 @@ namespace JetWeb.API.Controllers
             try
             {
                 var produto = await _produtoService.UpdateProduto(id, model);
-                if (produto == null) return NoContent();
+                if (produto == null) StatusCode(StatusCodes.Status500InternalServerError, "Erro ao tentar adicionar produto");
 
                 return Ok(produto);
             }
@@ -158,17 +156,15 @@ namespace JetWeb.API.Controllers
             try
             {
                 var produto = await _produtoService.GetProdutoById(id);
-                if (produto == null) return NoContent();
+                if (produto == null) StatusCode(StatusCodes.Status404NotFound, "Produto não encontrado");
 
                 if (await _produtoService.DeleteProduto(id))
                 {
                     _util.DeleteImage(produto.Imagem, _destino);
-                    return Ok(new { message = "Produto Deletado com sucesso" });
+                    return Ok(new { message = "Produto Deletado" });
                 }
-                else
-                {
-                    throw new Exception("Ocorreu um problem não específico ao tentar deletar Produto.");
-                }
+
+                return BadRequest("Ocorreu um problem não específico ao tentar deletar Produto.");
             }
             catch (Exception ex)
             {
@@ -177,39 +173,25 @@ namespace JetWeb.API.Controllers
             }
         }
 
-        [HttpPut("desativar/{produtoId}")]
-        public async Task<IActionResult> DisableProduto(int produtoId)
+        [HttpPatch("status/{id}")]
+        public async Task<IActionResult> StatusProduto(int id, ProdutoStatusDto model)
         {
             try
             {
-                var produto = await _produtoService.UpdateStatusProduto(produtoId, false);
+                var produto = await _produtoService.GetProdutoById(id);
+                if (produto == null) StatusCode(StatusCodes.Status404NotFound, "Produto não encontrado");
 
-                if (produto) return Ok("Produto Desativado.");
+                if (await _produtoService.UpdateStatusProduto(id, model))
+                {
+                    return Ok(new { message = "Status do Produto alterado" });
+                }
 
-                return BadRequest("Erro ao Desativar o produto.");
+                return BadRequest("Ocorreu um problem não específico ao tentar alterar o status do Produto.");
             }
             catch (Exception ex)
             {
                 return this.StatusCode(StatusCodes.Status500InternalServerError,
-                    $"Erro ao tentar desativar o produto. Erro: {ex.Message}");
-            }
-        }
-
-        [HttpPut("ativar/{produtoId}")]
-        public async Task<IActionResult> EnableProduto(int produtoId)
-        {
-            try
-            {
-                var produto = await _produtoService.UpdateStatusProduto(produtoId, true);
-
-                if (produto) return Ok("Produto Ativado.");
-
-                return BadRequest("Erro ao Ativar o produto.");
-            }
-            catch (Exception ex)
-            {
-                return this.StatusCode(StatusCodes.Status500InternalServerError,
-                    $"Erro ao tentar ativar o produto. Erro: {ex.Message}");
+                    $"Erro ao tentar mudar o status do produto. Erro: {ex.Message}");
             }
         }
     }

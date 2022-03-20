@@ -12,7 +12,7 @@ namespace JetWeb.Application.Dtos
         [Display(Name = "Nome do Produto")]
         public string Nome { get; set; }
 
-        [RegularExpression(@".*\.(|jpg|png)$", ErrorMessage = "Extensões permitidas: '*.jpg' e '*.png'")]
+        [RegularExpression(@".*\.(|jpe?g|png)$", ErrorMessage = "Extensões permitidas: '*.jpg', '*.jpeg', e '*.png'")]
         public string Imagem { get; set; }
 
         //[Required(ErrorMessage = "O campo {0} é obrigtório."),

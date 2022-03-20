@@ -12,6 +12,6 @@ namespace JetWeb.Application.Interfaces.Services
         Task<ProdutoDto[]> GetAllProdutos();
         Task<ProdutoDto[]> GetAllProdutosByNome(string nome);
         Task<ProdutoDto> GetProdutoById(int produtoId);
-        Task<bool> UpdateStatusProduto(int produtoId, bool status);
+        Task<bool> UpdateStatusProduto(int produtoId, ProdutoStatusDto model);
     }
 }

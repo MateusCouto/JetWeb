@@ -485,6 +485,6 @@ testem.log
 /bazel-out
 
 # Excluindo DB SQL Lite
-*.db
+# *.db
 *.db-shm
 *.db-wal

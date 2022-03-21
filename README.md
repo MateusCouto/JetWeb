@@ -1,6 +1,7 @@
 
 
 # JetWeb.API
+>![print_swagger](https://user-images.githubusercontent.com/42397879/159367702-cd2d1157-8144-4b7c-88ea-1966859e64e4.png)
 Building and Running
 
 1. Change to the api directory (i.e. Back\src\JetWeb.API)
@@ -23,7 +24,6 @@ Building and Running
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 13.3.0.
 
 cd \Front\JetWeb-App 
->![print_swagger](https://user-images.githubusercontent.com/42397879/159367702-cd2d1157-8144-4b7c-88ea-1966859e64e4.png)
 npm install bootstrap@5
 npm install --save-dev @angular-devkit/build-angular
 npm install ngx-currency --save

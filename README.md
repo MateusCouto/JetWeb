@@ -14,6 +14,8 @@ Building and Running
 
 4.	Issue the dotnet run command
 	dotnet watch run
+	
+	https://localhost:5001 or http://localhost:5000
 
 # JetWebApp
 

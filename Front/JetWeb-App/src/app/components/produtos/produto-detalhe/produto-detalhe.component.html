@@ -1,0 +1,84 @@
+<div class="row">
+  <div [ngClass]="{'col-md-8 pr-0': modoEditar, 'col-md-8': !modoEditar}">
+    <div class="card rounded shadow-sm">
+      <form [formGroup]="form">
+        <div class="p-3">
+          <div class="form-row">
+            <div class="form-group col-md-8">
+              <label>Nome do Produto</label>
+              <input type="text" class="form-control" [ngClass]="cssValidator(f.nome)" formControlName="nome"
+              placeholder="Insira o Nome" [(ngModel)]="produto.nome">
+              <div *ngIf="f.nome.errors?.required" class="invalid-feedback">
+                Nome é obrigatório.
+              </div>
+              <div *ngIf="f.nome.errors?.maxlength" class="invalid-feedback">
+                Nome deve ter no máximo 150 caracteres.
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-8">
+              <label>Descrição do Produto</label>
+              <input type="text" class="form-control" [ngClass]="cssValidator(f.descricao)" formControlName="descricao"
+              placeholder="Insira a Descrição do Produto" [(ngModel)]="produto.descricao">
+              <div *ngIf="f.descricao.errors?.maxlength" class="invalid-feedback">
+                Nome deve ter no máximo 2.000 caracteres.
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-3">
+              <label>Estoque</label>
+              <input type="number" class="form-control" [ngClass]="cssValidator(f.estoque)" formControlName="estoque"
+              placeholder="0" [(ngModel)]="produto.estoque">
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-md-3">
+                <label>Preço</label>
+                <input type="number" class="form-control" [ngClass]="cssValidator(f.preco)" formControlName="preco"
+                placeholder="0" [(ngModel)]="produto.preco">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-md-3">
+                <label>Status</label>
+                <input type="number" class="form-control" [ngClass]="cssValidator(f.status)" formControlName="status"
+                placeholder="true" [(ngModel)]="produto.status">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4" *ngIf="modoEditar">
+          <div [formGroup]="form" class="card-produto-view shadow-sm">
+              <div class="form-group m-0">
+                <input type="file" #file (change)="onFileChange($event)" class="form-control is-invalid" placeholder="" style="display: none">
+              </div>
+            <div class="card profile-card-2">
+              <div class="card-img-block">
+                <img class="image" [src]="imagemURL" class="img-fluid" (click)="file.click()" alt="Card image cap"
+                tooltip="Uplaod de Nova Imagem" [adaptivePosition]="false" placement="bottom" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <div class="d-flex">
+            <button class="btn btn-outline-secondary mr-auto border" (click)="resetForm()">
+              Cancelar Alteração
+            </button>
+            <button class="btn btn-success" [disabled]="!form.valid" (click)="salvarProduto()">
+              Salvar Produto
+            </button>
+          </div>
+        </div>
+      </form>
+
+    </div>
+
+
+
+

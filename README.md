@@ -25,14 +25,23 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 
 cd \Front\JetWeb-App 
 npm install bootstrap@5
+
 npm install --save-dev @angular-devkit/build-angular
+
 npm install ngx-currency --save
+
 npm install ngx-toastr --save
+
 npm install ngx-spinner --save
+
 npm install --save react-environments
+
 npm install --save @fortawesome/fontawesome-free
+
 npm install ngx-bootstrap --save
+
 ng add ngx-bootstrap  --component collapse
+
 npm install bootswatch
 
 ## Development server

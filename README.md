@@ -5,7 +5,9 @@
 Building and Running
 
 1. Change to the api directory (i.e. Back\src\JetWeb.API)
+
 	cd Back\src\JetWeb.API
+	
 	dotnet tool install --global dotnet-ef --version 5.0.2
 
 2. Issue the dotnet restore command (this resolves all NuGet packages)
